@@ -1,0 +1,962 @@
+import java.util.*;
+import java.io.FileWriter;
+import java.io.IOException;
+
+
+class Player {
+    String username;
+    long id;
+    int score;
+
+    Player(String username, long id, int score) {
+        this.username = username;
+        this.id = id;
+        this.score = score;
+    }
+}
+
+
+//  Central Hub
+public class GamingHub {
+    static Scanner sc = new Scanner(System.in);
+    static Random rand = new Random();
+    static int count = 0;
+    static Player player;
+
+    public static void main(String[] args) {
+        boolean running = true;
+System.out.println("----------WELCOME TO GAMINGHUB----------");
+System.out.println("Every game you win you get 10 points");
+System.out.print("Enter User Name: ");
+String a = sc.nextLine();
+long r = rand.nextLong(26200000)+25200000;
+player = new Player(a,r,0);
+System.out.println("Your Id: "+r);
+
+
+
+        while (running) {
+            System.out.println("\n Welcome to the Gaming Hub!");
+            System.out.println("Choose a game:");
+            System.out.println("1. Snakes and Ladders");
+            System.out.println("2. Cricket");
+            System.out.println("3. CrackIt (Password Game)");
+            System.out.println("4. Hangman");
+            System.out.println("5. Rock Paper Scissors");
+            System.out.println("6. Tic Tac Toe");
+            System.out.println("7. Exit");
+            System.out.print("Enter choice: ");
+
+            int choice = sc.nextInt();
+            sc.nextLine(); // consume leftover newline
+           if(choice==7){
+           System.out.println("Your Name: " + player.username);
+System.out.println("Your ID: " + player.id);
+System.out.println("Your Final Score: " + player.score);
+
+}
+
+            switch (choice) {
+                case 1: SnakesLadders.play(sc, rand); break;
+                case 2: Cricket.play(sc, rand); break;
+                case 3: CrackIt.play(sc, rand); break;
+                case 4: Hangman.play(sc, rand); break;
+                case 5: RockPaperScissors.play(sc, rand); break;
+                case 6: TicTacToe.play(sc, rand); break;
+                case 7: running = false; break;
+                default: System.out.println("Invalid choice. Try again.");
+            }
+        }
+
+        System.out.println(" Thanks for playing!");
+try {
+    FileWriter fw = new FileWriter("playerdata.txt", true);
+    fw.write("Name: " + player.username +
+             ", ID: " + player.id +
+             ", Score: " + player.score + "\n");
+    fw.close();
+    System.out.println("Player data saved successfully!");
+} catch (IOException e) {
+    System.out.println("Error writing to file: " + e.getMessage());
+}
+
+    }
+}
+
+//  Snakes and Ladders
+class SnakesLadders {
+    static final int WINNING_POSITION = 100;
+
+    // Snakes: {head, tail}
+    static int[][] snakes = {
+            {98, 78},
+            {95, 75},
+            {92, 88},
+            {47, 26},
+            {25, 5}
+    };
+
+    // Ladders: {bottom, top}
+    static int[][] ladders = {
+            {4, 14},
+            {9, 31},
+            {20, 38},
+            {28, 84},
+            {40, 59},
+            {63, 81},
+            {71, 91}
+    };
+
+    public static void play(Scanner sc,Random rand) {
+
+
+        System.out.println(" Welcome to Snakes and Ladders!");
+        System.out.println("Human vs CPU — First to reach 100 wins!\n");
+
+        boolean playAgain = true;
+
+        while (playAgain) {
+            int player = 0, cpu = 0;
+            boolean turn = true; // true = human, false = cpu
+
+            // Game loop
+            while (player < WINNING_POSITION && cpu < WINNING_POSITION) {
+                if (turn) {
+                    System.out.println(" Player, press ENTER to roll the dice (or \"Q\" to quit)...");
+                    String input = sc.nextLine();
+                    if (input.equalsIgnoreCase("Q")){
+                        System.out.println("Thanks for playing!!");
+                        return;
+                    }
+                    int dice = rand.nextInt(6) + 1;
+                    System.out.println("You rolled a " + dice);
+                    player = movePlayer(player, dice);
+                    System.out.println("Player is now at " + player + "\n");
+                } else {
+                    System.out.println(" CPU's turn...");
+                    int dice = rand.nextInt(6) + 1;
+                    System.out.println("CPU rolled a " + dice);
+                    cpu = movePlayer(cpu, dice);
+                    System.out.println("CPU is now at " + cpu + "\n");
+                }
+
+                // Switch turn
+                turn = !turn;
+            }
+
+            // Winner announcement
+            if (player >= WINNING_POSITION) {
+                System.out.println(" Human wins!");
+                GamingHub.player.score = GamingHub.player.score+10;
+            } else {
+                System.out.println(" CPU wins!");
+            }
+
+            // Replay prompt
+            System.out.print("\nDo you want to play again? (y/n): ");
+            String response = sc.nextLine().trim().toLowerCase();
+            playAgain = response.equals("y");
+            System.out.println();
+        }
+
+        System.out.println(" Thanks for playing!");
+
+    }
+
+    // Function to move player
+    static int movePlayer(int position, int dice) {
+        position += dice;
+        if (position > WINNING_POSITION) {
+            position -= dice; // can't move beyond 100
+        }
+
+        // Check ladders
+        for (int[] ladder : ladders) {
+            if (position == ladder[0]) {
+                System.out.println("Ladder! Climb up from " + position + " to " + ladder[1]);
+                position = ladder[1];
+            }
+        }
+
+        // Check snakes
+        for (int[] snake : snakes) {
+            if (position == snake[0]) {
+                System.out.println(" Snake! Slide down from " + position + " to " + snake[1]);
+                position = snake[1];
+            }
+        }
+
+        return position;
+    }
+
+}
+
+//  Cricket
+class Cricket {
+    public static void play(Scanner sc, Random r) {
+        System.out.println("Lets play Cricket:");
+        System.out.println("Here are the rules:");
+        System.out.println("1. Only 0-6 numbers should be used while playing this game ");
+        System.out.println("2. There will be a Toss in the begining of the game if you choose odd Enter 'o' if you choose even Enter 'e'");
+        System.out.println("3. If you win the Toss then choose '1' to bat and '2' to bowl");
+        System.out.println("4. If the number generated by computer and number entered by you are same than it is 'OUT'");
+        System.out.println("5. You can exit the game by entering 99");
+        System.out.println("TOSS:- Choose 'o' or 'e'");
+        char ch = sc.next().charAt(0);
+        System.out.println("Enter the number(1-6):");
+        int a = sc.nextInt();
+        if(a == 99){ System.out.println("EXITED!"); return; }
+        int b = r.nextInt(7);
+        System.out.println("Computers choice : "+b);
+        int c = a+b;
+        int sum1=0;
+        int sum2=0;
+        if(c%2==0&&ch=='e'){
+            System.out.println("YOU WON THE TOSS!");
+            System.out.println("Enter 1 to bat or 2 to bowl:");
+            int d = sc.nextInt();
+            if(d == 99){ System.out.println("EXITED!"); return; }
+
+            if(d==1){
+                int e=0,f=1;
+                while(e!=f){
+                    System.out.println("Enter your score: ");
+                    e = sc.nextInt();
+                    if(e == 99){ System.out.println("EXITED!"); return; }
+                    f = r.nextInt(7);
+                    System.out.println("computers choice: "+f);
+                    if(e>=0&&e<=6){
+                        if (e!=f){
+                            sum1 += e;
+                            System.out.println("Your Score: "+sum1);
+
+                        }else{
+                            System.out.println("OUT!");
+                        }
+
+                    }else{
+                        System.out.println("you are not following the rules");
+                    }
+                }
+                int target = sum1+1;
+                System.out.println("opponents target : "+target);
+                int g=1,h=0;
+                while(g!=h && target>sum2){
+                    System.out.println("Enter your choice: ");
+                    h = r.nextInt(7);
+                    g = sc.nextInt();
+                    if(g == 99){ System.out.println("EXITED!"); return; }
+
+                    System.out.println("computers choice: "+h);
+                    if(g>=0&&g<=6){
+                        if (g!=h){
+                            sum2 += h;
+                            System.out.println("opponent Score: "+sum2);
+
+                        }else{
+                            System.out.println("OUT!");
+                        }
+
+                    }else{
+                        System.out.println("you are not following the rules");
+                    }
+                }
+
+                if(sum1>sum2){
+                    System.out.println("YOU WON THE MATCH");
+                  GamingHub.player.score+=10;
+                }else if(sum1==sum2){
+                    System.out.println("MATCH TIE");
+                }else{
+                    System.out.println("YOU LOST THE MATCH");
+                }
+            }
+
+            if(d==2){
+                int g=1,h=0;
+                while(g!=h){
+                    System.out.println("Enter your choice: ");
+                    h = r.nextInt(7);
+                    g = sc.nextInt();
+                    if(g == 99){ System.out.println("EXITED!"); return; }
+
+                    System.out.println("computers choice: "+h);
+                    if(g>=0&&g<=6){
+                        if (g!=h){
+                            sum2 += h;
+                            System.out.println("opponent Score: "+sum2);
+
+                        }else{
+                            System.out.println("OUT!");
+                        }
+
+                    }else{
+                        System.out.println("you are not following the rules");
+                    }
+                }
+                int target = sum2+1;
+                System.out.println("your target : "+target);
+                int e=0,f=1;
+                while(e!=f && target>sum1){
+                    System.out.println("Enter your score: ");
+                    e = sc.nextInt();
+                    if(e == 99){ System.out.println("EXITED!"); return; }
+                    f = r.nextInt(7);
+                    System.out.println("computers choice: "+f);
+                    if(e>=0&&e<=6){
+                        if (e!=f){
+                            sum1 += e;
+                            System.out.println("Your Score: "+sum1);
+
+                        }else{
+                            System.out.println("OUT!");
+                        }
+
+                    }else{
+                        System.out.println("you are not following the rules");
+                    }
+                }
+                if(sum1>sum2){
+                    System.out.println("YOU WON THE MATCH");
+                 GamingHub.player.score+=10;
+                }else if(sum1==sum2){
+                    System.out.println("MATCH TIE");
+                }else{
+                    System.out.println("YOU LOST THE MATCH");
+                }
+
+            }
+        }
+
+        else if(c%2==0&&ch=='o'){
+            System.out.println("YOU LOST THE TOSS");
+            System.out.println("Computer choose to bowl");
+
+            int e=0,f=1;
+            while(e!=f){
+                System.out.println("Enter your score: ");
+                e = sc.nextInt();
+                if(e == 99){ System.out.println("EXITED!"); return; }
+                f = r.nextInt(7);
+                System.out.println("computers choice: "+f);
+                if(e>=0&&e<=6){
+                    if (e!=f){
+                        sum1 += e;
+                        System.out.println("Your Score: "+sum1);
+
+                    }else{
+                        System.out.println("OUT!");
+                    }
+                }else{
+                    System.out.println("you are not following the rules");
+                }
+            }
+            int target = sum1+1;
+            System.out.println("opponents target : "+target);
+            int g=1,h=0;
+            while(g!=h && target>sum2){
+                System.out.println("Enter your choice: ");
+                h = r.nextInt(7);
+                g = sc.nextInt();
+                if(g == 99){ System.out.println("EXITED!"); return; }
+
+                System.out.println("computers choice: "+h);
+                if(g>=0&&g<=6){
+                    if (g!=h){
+                        sum2 += h;
+                        System.out.println("opponent Score: "+sum2);
+
+                    }else{
+                        System.out.println("OUT!");
+                    }
+
+                }else{
+                    System.out.println("you are not following the rules");
+                }
+            }
+            if(sum1>sum2){
+                System.out.println("YOU WON THE MATCH");
+               GamingHub.player.score+=10;
+            }else if(sum1==sum2){
+                System.out.println("MATCH TIE");
+            }else{
+                System.out.println("YOU LOST THE MATCH");
+            }
+        }
+
+        else if(c%2!=0&&ch=='o'){
+            System.out.println("YOU WON THE TOSS!");
+            System.out.println("Enter 1 to bat or 2 to bowl:");
+            int d = sc.nextInt();
+            if(d == 99){ System.out.println("EXITED!"); return; }
+
+            if(d==1){
+                int e=0,f=1;
+                while(e!=f){
+                    System.out.println("Enter your score: ");
+                    e = sc.nextInt();
+                    if(e == 99){ System.out.println("EXITED!"); return; }
+                    f = r.nextInt(7);
+                    System.out.println("computers choice: "+f);
+                    if(e>=0&&e<=6){
+                        if (e!=f){
+                            sum1 += e;
+                            System.out.println("Your Score: "+sum1);
+
+                        }else{
+                            System.out.println("OUT!");
+                        }
+
+                    }else{
+                        System.out.println("OUT!\nyou are not following the rules");
+                    }
+                }
+                int target = sum1+1;
+                System.out.println("opponents target : "+target);
+                int g=1,h=0;
+                while(g!=h && target>sum2){
+                    System.out.println("Enter your choice: ");
+                    h = r.nextInt(7);
+                    g = sc.nextInt();
+                    if(g == 99){ System.out.println("EXITED!"); return; }
+
+                    System.out.println("computers choice: "+h);
+                    if(g>=0&&g<=6){
+                        if (g!=h){
+                            sum2 += h;
+                            System.out.println("opponent Score: "+sum2);
+
+                        }else{
+                            System.out.println("OUT!");
+                        }
+
+                    }else{
+                        System.out.println("you are not following the rules");
+                    }
+                }
+
+                if(sum1>sum2){
+                    System.out.println("YOU WON THE MATCH");
+                 GamingHub.player.score+=10;
+                }else if(sum1==sum2){
+                    System.out.println("MATCH TIE");
+                }else{
+                    System.out.println("YOU LOST THE MATCH");
+                }
+            }
+
+            if(d==2){
+                int g=1,h=0;
+                while(g!=h){
+                    System.out.println("Enter your choice: ");
+                    h = r.nextInt(7);
+                    g = sc.nextInt();
+                    if(g == 99){ System.out.println("EXITED!"); return; }
+
+                    System.out.println("computers choice: "+h);
+                    if(g>=0&&g<=6){
+                        if (g!=h){
+                            sum2 += h;
+                            System.out.println("opponent Score: "+sum2);
+
+                        }else{
+                            System.out.println("OUT!");
+                        }
+
+                    }else{
+                        System.out.println("you are not following the rules");
+                    }
+                }
+                int target = sum2+1;
+                System.out.println("your target : "+target);
+                int e=0,f=1;
+                while(e!=f && target>sum1){
+                    System.out.println("Enter your score: ");
+                    e = sc.nextInt();
+                    if(e == 99){ System.out.println("EXITED!"); return; }
+                    f = r.nextInt(7);
+                    System.out.println("computers choice: "+f);
+                    if(e>=0&&e<=6){
+                        if (e!=f){
+                            sum1 += e;
+                            System.out.println("Your Score: "+sum1);
+
+                        }else{
+                            System.out.println("OUT!");
+                        }
+
+                    }else{
+                        System.out.println("you are not following the rules");
+                    }
+                }
+                if(sum1>sum2){
+                    System.out.println("YOU WON THE MATCH");
+                  GamingHub.player.score+=10;
+                }else if(sum1==sum2){
+                    System.out.println("MATCH TIE");
+                }else{
+                    System.out.println("YOU LOST THE MATCH");
+                }
+
+            }
+
+        }else{
+            System.out.println("YOU LOST THE TOSS");
+            System.out.println("opponent choose to bat");
+            int g=1,h=0;
+            while(g!=h){
+                System.out.println("Enter your choice: ");
+                h = r.nextInt(7);
+                g = sc.nextInt();
+                if(g == 99){ System.out.println("EXITED!"); return; }
+
+                System.out.println("computers choice: "+h);
+                if(g>=0&&g<=6){
+                    if (g!=h){
+                        sum2 += h;
+                        System.out.println("opponent Score: "+sum2);
+
+                    }else{
+                        System.out.println("OUT!");
+                    }
+
+                }else{
+                    System.out.println("you are not following the rules");
+                }
+            }
+            int target = sum2+1;
+            System.out.println("your target : "+target);
+            int e=0,f=1;
+            while(e!=f && target>sum1){
+                System.out.println("Enter your score: ");
+                e = sc.nextInt();
+                if(e == 99){ System.out.println("EXITED!"); return; }
+                f = r.nextInt(7);
+                System.out.println("computers choice: "+f);
+                if(e>=0&&e<=6){
+                    if (e!=f){
+                        sum1 += e;
+                        System.out.println("Your Score: "+sum1);
+
+                    }else{
+                        System.out.println("OUT!");
+                    }
+
+                }else{
+                    System.out.println("you are not following the rules");
+                }
+            }
+            if(sum1>sum2){
+                System.out.println("YOU WON THE MATCH");
+GamingHub.player.score+=10;
+            }else if(sum1==sum2){
+                System.out.println("MATCH TIE");
+            }else{
+                System.out.println("YOU LOST THE MATCH");
+            }
+
+        }
+
+    }
+}
+
+//  CrackIt
+class CrackIt {
+    private static final String[] PASSWORDS = {
+            "apple","tiger","winter","ocean","rocket",
+            "forest","rainbow","dragon","island","galaxy",
+            "banana","orange","panda","desert","coffee",
+            "cookie","thunder","mountain","laptop","camera",
+            "robot","pizza","river","bottle","castle",
+            "spider","sunset","flower","jungle","candy",
+            "dolphin","silver","lemon","cloud","magnet",
+            "candle","garden","chair","blanket","pencil",
+            "chocolate","window","planet","carrot","mirror",
+            "sand","music","tree","butterfly","storm"
+    };
+
+    private static final String[][] HINTS = {
+            {"Fruit","Red or green","Keeps doctor away","Common phone brand","Starts with A"},
+            {"Animal","Stripes","Big cat","Orange & black","Starts with T"},
+            {"Season","Cold","Snow","December","Starts with W"},
+            {"Water","Deep","Blue","Waves","Starts with O"},
+            {"Flies upward","Space","Fast","NASA","Starts with R"},
+            {"Many trees","Green","Animals live here","Nature","Starts with F"},
+            {"7 colors","Appears after rain","Arc","Sky","Starts with R"},
+            {"Mythical creature","Breathes fire","Scales","Powerful","Starts with D"},
+            {"Surrounded by water","Land","Beaches","Lonely","Starts with I"},
+            {"Stars","Space","Milky Way","Huge","Starts with G"},
+            {"Fruit","Yellow","Monkeys like it","Curved","Starts with B"},
+            {"Fruit","Color","Round","Vitamin C","Starts with O"},
+            {"Black and white","Bamboo","Cute","Bear","Starts with P"},
+            {"Hot","Sand","Camels","Dry","Starts with D"},
+            {"Brown drink","Morning","Caffeine","Hot","Starts with C"},
+            {"Sweet","Baked","Chocolate chips","Round","Starts with C"},
+            {"After lightning","Loud","Storm","Weather","Starts with T"},
+            {"Tall","Rocks","Snow on top","Hike","Starts with M"},
+            {"Portable","Computer","Keyboard","Screen","Starts with L"},
+            {"Takes pictures","Lens","Flash","Photography","Starts with C"},
+            {"Machine","Metal","AI","Moves","Starts with R"},
+            {"Food","Cheese","Round","Italian","Starts with P"},
+            {"Water","Flows","Stream","Fishing","Starts with R"},
+            {"Holds liquid","Plastic or glass","Cap","Drink","Starts with B"},
+            {"King","Medieval","Old building","Towers","Starts with C"},
+            {"Eight legs","Web","Creepy","Not insect","Starts with S"},
+            {"Evening","Orange sky","End of day","Beautiful","Starts with S"},
+            {"Petals","Garden","Fragrance","Bees","Starts with F"},
+            {"Trees","Animals","Wild","Nature","Starts with J"},
+            {"Sweet","Kids love it","Sugar","Colorful","Starts with C"},
+            {"Smart animal","Ocean","Jumps","Friendly","Starts with D"},
+            {"Color","Metal","Shiny","Jewelry","Starts with S"},
+            {"Fruit","Sour","Yellow","Juice","Starts with L"},
+            {"Sky","White or gray","Rain comes from it","Soft looking","Starts with C"},
+            {"Sticks to metal","Poles","Force","Science","Starts with M"},
+            {"Light","Wax","Flame","Used in dark","Starts with C"},
+            {"Plants","Flowers","Soil","Watering","Starts with G"},
+            {"Furniture","Sit","Legs","Back support","Starts with C"},
+            {"Soft","Bed","Warm","Fabric","Starts with B"},
+            {"Writing","Eraser","Wood","Lead","Starts with P"},
+            {"Sweet","Brown","Candy","Cocoa","Starts with C"},
+            {"Glass","House","View","Sunlight","Starts with W"},
+            {"Round","Orbits sun","Earth is one","Space","Starts with P"},
+            {"Vegetable","Orange","Rabbits love it","Crunchy","Starts with C"},
+            {"Reflection","Glass","Bathroom","Look at yourself","Starts with M"},
+            {"Beach","Heat","Small grains","Dry","Starts with S"},
+            {"Sound","Notes","Instruments","Songs","Starts with M"},
+            {"Wood","Leaves","Nature","Tall","Starts with T"},
+            {"Colorful insect","Wings","Garden","Beautiful","Starts with B"},
+            {"Rain","Dark clouds","Wind","Loud","Starts with S"}
+    };
+
+    public static void play(Scanner sc,Random rand) {
+
+
+       int index = rand.nextInt(PASSWORDS.length);
+    String password = PASSWORDS[index];
+    String[] hints = HINTS[index];
+
+    int attempts = 0;
+
+    System.out.println("=== PASSWORD CRACKER GAME ===");
+    System.out.println("Guess the password. You get 5 hints, one after each wrong guess.");
+    System.out.println("Type 'exit' anytime to quit.\n");
+
+    while (attempts < 5) {
+        System.out.print("Enter guess: ");
+        String guess = sc.nextLine().trim();
+
+        // EXIT OPTION
+        if (guess.equalsIgnoreCase("exit")) {
+            System.out.println("\n🚪 You exited the game.");
+            return;
+        }
+
+        if (guess.equalsIgnoreCase(password)) {
+            System.out.println("\n✔ Correct! You cracked the password!");
+            System.out.println("Password: " + password);
+GamingHub.player.score+=10;
+            return;
+        }
+
+        System.out.println("✘ Wrong!");
+        System.out.println("Hint " + (attempts + 1) + ": " + hints[attempts]);
+        attempts++;
+        System.out.println();
+    }
+
+    System.out.println("❌ Out of attempts!");
+    System.out.println("The password was: " + password);
+
+    }
+
+}
+
+class Hangman {
+    public static void play(Scanner sc,Random random) {
+        String[] words = {"computer","java","hangman","programming","random",
+                "scanner","elephant","dog","parrot","cow","snake","crocodile","bench","fan","cupboard","mother",
+                "father","children","wolf","kick","mission","impossible","final","reckoning","fallout","ghost",
+                "protocol","rogue","nation","avengers","infinity","war","end","game","age","ultron","captain",
+                "america","first","soldier","winter","civil","brave","new","world","iron","man","black","widow",
+                "hawkeye","thor","ragnarok","dark","love","thunder","doctor","strange","multiverse","madness",
+                "wanda","vision","hulk","silver","surfer","shuri","panther","moon","knight","guardians","galaxy",
+                "volume","shangchi","rider","venom","wakanda","forever","ant","spider","man","home","coming",
+                "amazing","far","super","sheild","steps","wonder","women","marvel","bat","robot","rabbit","ego",
+                "lord","gamora","palace","live","neighbours","blue","yellow","green","gray","violet","odin",
+                "time","loop","slipping","sun","micro","chips","bots","control","processor","unit","address",
+                "bus","statement","inheritance","sorting","quick","insertion","interceptor","force","missile",
+                "army","navy","submarine","tank","suitcase"};
+
+        String wordToGuess = words[random.nextInt(words.length)];
+
+        int wordLength = wordToGuess.length();
+        int maxAttempts;
+        if(wordLength == 3) {
+            maxAttempts = 5;
+        } else if (wordLength == 4) {
+            maxAttempts = 6;
+        } else if (wordLength == 5) {
+            maxAttempts = 7;
+        } else {
+            maxAttempts = 7;
+        }
+
+        int attempts = 0;
+        boolean wordGuessed = false;
+
+        char[] guessedWord = new char[wordLength];
+        for (int i = 0; i < guessedWord.length; i++) {
+            guessedWord[i] = '_';
+        }
+
+        while (attempts < maxAttempts && !wordGuessed) {
+            System.out.print("Guess a letter (press 0 to exit): ");
+            char guess = sc.next().toLowerCase().charAt(0);
+
+            
+            if (guess == '0') {
+                System.out.println("Exiting Hangman...");
+                return;
+            }
+
+            boolean correctGuess = false;
+            for (int i = 0; i < wordLength; i++) {
+                if (wordToGuess.charAt(i) == guess && guessedWord[i] == '_') {
+                    guessedWord[i] = guess;
+                    correctGuess = true;
+                }
+            }
+
+            if (!correctGuess) {
+                attempts++;
+                System.out.println("Wrong guess! Attempts left: " + (maxAttempts - attempts));
+            }
+
+            System.out.print("Current word: ");
+            for (char c : guessedWord) {
+                System.out.print(c + " ");
+            }
+            System.out.println();
+
+            wordGuessed = new String(guessedWord).equals(wordToGuess);
+        }
+
+        if (wordGuessed) {
+            System.out.println("Congratulations! You guessed the word: " + wordToGuess);
+            GamingHub.player.score+=10;
+        } else {
+            System.out.println("Game over! The word was: " + wordToGuess);
+        }
+    }
+}
+
+//  Rock Paper Scissors
+class RockPaperScissors {
+    public static void play(Scanner sc,Random random) {
+
+        String[] moves = {"rock", "paper", "scissors"};
+
+        boolean playAgain = true;
+        while (playAgain) {
+            int playerScore = 0;
+            int computerScore = 0;
+            int roundsPlayed = 0;
+
+            System.out.println("\n--- New Best-of-Three Game ---");
+
+            while (playerScore < 2 && computerScore < 2 && roundsPlayed < 3) {
+                System.out.println("\nRound " + (roundsPlayed + 1));
+                System.out.print("Enter your move (rock, paper, or scissors or \'Q\' to quit): ");
+                String playerMove = sc.nextLine().toLowerCase();
+                if (playerMove.equalsIgnoreCase("q")){
+                    System.out.println("Thanks for playing!!");
+                    return;
+                }
+
+                while (!isValidMove(playerMove, moves)) {
+                    System.out.print("Invalid move. Please enter rock, paper, or scissors: ");
+                    playerMove = sc.nextLine().toLowerCase();
+                }
+
+                int computerIndex = random.nextInt(3);
+                String computerMove = moves[computerIndex];
+
+                System.out.println("You chose: " + playerMove);
+                System.out.println("Computer chose: " + computerMove);
+
+                String result = determineWinner(playerMove, computerMove);
+                System.out.println(result);
+
+                if (result.contains("You win!")) {
+                    playerScore++;
+GamingHub.player.score+=10;
+                } else if (result.contains("Computer wins!")) {
+                    computerScore++;
+                }
+                roundsPlayed++;
+            }
+
+            System.out.println("\n--- Game Over ---");
+            System.out.println("Final Score: You " + playerScore + " - " + computerScore + " Computer");
+
+            if (playerScore > computerScore) {
+                System.out.println("Congratulations! You won the best of three!");
+            } else if (computerScore > playerScore) {
+                System.out.println("Better luck next time! The computer won the best of three.");
+            } else {
+                System.out.println("The best of three game was a tie!");
+            }
+
+            System.out.print("Do you want to play another best of three game? (yes/no): ");
+            String playAgainChoice = sc.nextLine().toLowerCase();
+            if (!playAgainChoice.equals("yes")) {
+                playAgain = false;
+            }
+        }
+
+        System.out.println("Thanks for playing!");
+        sc.close();
+    }
+
+
+    public static boolean isValidMove(String move, String[] validMoves) {
+        for (String validMove : validMoves) {
+            if (move.equals(validMove)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    public static String determineWinner(String playerMove, String computerMove) {
+        if (playerMove.equals(computerMove)) {
+            return "It's a tie!";
+        } else if ((playerMove.equals("rock") && computerMove.equals("scissors")) ||
+                (playerMove.equals("paper") && computerMove.equals("rock")) ||
+                (playerMove.equals("scissors") && computerMove.equals("paper"))) {
+            return "You win!";
+        } else {
+            return "Computer wins!";
+        }
+    }
+
+}
+
+//  Tic Tac Toe (FIXED)
+class TicTacToe {
+    private static char[][] board = new char[3][3];
+    private static char currentPlayer = 'X'; // Human starts first
+
+
+    public static void initializeBoard() {
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                board[i][j] = ' ';
+            }
+        }
+    }
+
+    public static void printBoard() {
+        System.out.println();
+        for (int i = 0; i < 3; i++) {
+            System.out.printf(" %c | %c | %c \n", board[i][0], board[i][1], board[i][2]);
+            if (i < 2) System.out.println("---|---|---");
+        }
+        System.out.println();
+    }
+
+    public static boolean checkWin() {
+        for (int i = 0; i < 3; i++) {
+            if (board[i][0] == currentPlayer &&
+                board[i][1] == currentPlayer &&
+                board[i][2] == currentPlayer) return true;
+        }
+
+        for (int i = 0; i < 3; i++) {
+            if (board[0][i] == currentPlayer &&
+                board[1][i] == currentPlayer &&
+                board[2][i] == currentPlayer) return true;
+        }
+
+        if (board[0][0] == currentPlayer &&
+            board[1][1] == currentPlayer &&
+            board[2][2] == currentPlayer) return true;
+
+        if (board[0][2] == currentPlayer &&
+            board[1][1] == currentPlayer &&
+            board[2][0] == currentPlayer) return true;
+
+        return false;
+    }
+
+    public static boolean checkDraw() {
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                if (board[i][j] == ' ') return false;
+            }
+        }
+        return true;
+    }
+
+    public static void computerMove(Random r) {
+        int row, col;
+        do {
+            row = r.nextInt(3);
+            col = r.nextInt(3);
+        } while (board[row][col] != ' ');
+
+        board[row][col] = currentPlayer;
+        System.out.printf("Computer placed %c at (%d, %d)\n", currentPlayer, row, col);
+    }
+
+    public static void switchPlayer() {
+        currentPlayer = (currentPlayer == 'X') ? 'O' : 'X';
+    }
+
+    public static void play(Scanner scanner, Random r) {
+
+        initializeBoard();
+
+        while (true) {
+            printBoard();
+
+            if (currentPlayer == 'X') {
+                System.out.printf("Player %c, enter row and column (0-2): ", currentPlayer);
+                int row = scanner.nextInt();
+                int col = scanner.nextInt();
+
+                 
+                if (row == 3 && col == 3) {
+                    System.out.println("Exiting Tic Tac Toe...");
+                    return;
+                }
+
+                if (row < 0 || row > 2 || col < 0 || col > 2 || board[row][col] != ' ') {
+                    System.out.println("Invalid move! Try again.");
+                    continue;
+                }
+
+                board[row][col] = currentPlayer;
+
+            } else {
+                computerMove(r);
+            }
+
+            if (checkWin()) {
+                printBoard();
+                System.out.printf("Player %c wins!\n", currentPlayer);
+                GamingHub.player.score += 10;
+                break;
+            }
+
+            if (checkDraw()) {
+                printBoard();
+                System.out.println("It's a draw!");
+                break;
+            }
+
+            switchPlayer();
+        }
+    }
+}
