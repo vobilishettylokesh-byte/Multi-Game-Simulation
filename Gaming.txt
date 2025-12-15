@@ -815,7 +815,6 @@ GamingHub.player.score+=10;
         }
 
         System.out.println("Thanks for playing!");
-        sc.close();
     }
 
 
@@ -960,3 +959,4 @@ class TicTacToe {
         }
     }
 }
+
